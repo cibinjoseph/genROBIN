@@ -28,8 +28,7 @@ def getChebyshevNodes(a, b, n):
     """ Get n+1 Chebyshev nodes from a to b """
     k = np.arange(n+1)
     nodes = 0.5*(a+b) + 0.5*(b-a)*np.cos((2.0*(n-k))*np.pi*0.5/n)
-    nodes[0] = a
-    nodes[n] = b
+    nodes[0], nodes[n] = a, b
     return nodes
 
 def getsuperval(x, c):
@@ -90,12 +89,10 @@ def getVertices(nx, nt, isPylon = False):
 
     if isPylon:
         # Pylon section limits
-        xBegin = 0.4
-        xEnd = 1.018
+        xBegin, xEnd = 0.4, 1.018
     else:
         # Fuselage section limits
-        xBegin = 0.0
-        xEnd = 2.0
+        xBegin, xEnd = 0.0, 2.0
 
     xol = np.empty(shape=[nx+1, nt])
     yol = np.empty(shape=[nx+1, nt])
@@ -191,8 +188,8 @@ def getArguments():
 
     return parser.parse_args()
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     # Parse arguments
     args = getArguments()
 
@@ -207,11 +204,11 @@ if __name__ == "__main__":
     fusFile = "robinFuselage." + fileType
     pylFile = "robinPylon." + fileType
 
-    # Check if inputs are valid
-    if all((nxFuselage, ntFuselage, nxPylon, ntPylon)) > 0:
+    # Check if inputs are positive
+    if all(arg > 0 for arg in (nxFuselage, ntFuselage, nxPylon, ntPylon)):
         print("Generating ROBIN geometry")
     else:
-        raise ValueError("Incorrect number of elements")
+        raise ValueError("Invalid number of elements")
 
     # Create fuselage
     x, y, z = getVertices(nxFuselage, ntFuselage)
