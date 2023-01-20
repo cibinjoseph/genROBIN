@@ -1,8 +1,7 @@
+#!/usr/bin/python3
+
 import numpy as np
 import argparse as ag
-
-fusFile = "robinFuselage.obj"
-pylFile = "robinPylon.obj"
 
 # Machine epsilon
 eps = np.spacing(1.0)
@@ -203,6 +202,11 @@ if __name__ == "__main__":
     nxPylon = nscale*args.nxPylon
     ntPylon = nscale*args.ntPylon
 
+    fileType = "obj"
+
+    fusFile = "robinFuselage." + fileType
+    pylFile = "robinPylon." + fileType
+
     # Check if inputs are valid
     if all((nxFuselage, ntFuselage, nxPylon, ntPylon)) > 0:
         print("Generating ROBIN geometry")
@@ -211,10 +215,10 @@ if __name__ == "__main__":
 
     # Create fuselage
     x, y, z = getVertices(nxFuselage, ntFuselage)
-    print("Writing fuselage to file")
+    print("Writing fuselage to " + fusFile)
     writeVertices(x, y, z, fusFile, writeFaces=True)
 
     # Create pylon
     x, y, z = getVertices(nxPylon, ntPylon, isPylon = True)
-    print("Writing pylon to file")
+    print("Writing pylon to " + pylFile)
     writeVertices(x, y, z, pylFile, writeFaces=True)
