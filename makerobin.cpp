@@ -15,6 +15,7 @@
 #include <vector>
 #include <array>
 
+// ADDED
 int get_fuselage_section (const double x) {
   int idx = -1;
   if (x >= 0.0 and x < 0.4) idx = 0;
@@ -24,6 +25,7 @@ int get_fuselage_section (const double x) {
   return idx;
 }
 
+// ADDED
 int get_pylon_section (const double x) {
   int idx = -1;
   if (x >= 0.4 and x < 0.8) idx = 4;
@@ -33,10 +35,12 @@ int get_pylon_section (const double x) {
 
 using SupEll = std::array<double, 8>;
 
+// ADDED
 double getsuperval (const double x, const SupEll& c) {
   return c[5] + c[6]*std::pow(std::max(0.0,c[0]+c[1]*std::pow((x+c[2])/c[3], c[4])), 1.0/c[7]);	// nan
 }
 
+// ADDED
 double getRadialCoord(double H, double W, double theta, double N) {
   double numer = 0.25*H*W;
   // Note the new std::abs - this is to ensure that values are positive, we really only compute one quadrant
@@ -45,6 +49,7 @@ double getRadialCoord(double H, double W, double theta, double N) {
   return numer / std::pow(denom, 1.0/N); 
 }
 
+// ADDED
 double chebeshev_node(double a, double b, double k, double n) {
   if (k == 0) {
     return a;
@@ -55,6 +60,7 @@ double chebeshev_node(double a, double b, double k, double n) {
   }
 }
 
+// ADDED
 void create_vertices(const size_t nx, const size_t nt, const std::string fileName,
                      int (*getSection)(double), const double xBegin, const double xEnd) {
 
@@ -217,9 +223,9 @@ int main(int argc, char const *argv[]) {
   std::cout << "Creating fuselage mesh..." << std::endl;
   create_vertices(fnx, fnt, fileName, get_fuselage_section, fusBegin, fusEnd);
   create_faces(fileName, fnx, fnt);
-  std::cout << "Creating pylon mesh..." << std::endl;
-  create_vertices(pnx, pnt, pFileName, get_pylon_section, pylBegin, pylEnd);
-  create_faces(pFileName, pnx, pnt);
+  // std::cout << "Creating pylon mesh..." << std::endl;
+  // create_vertices(pnx, pnt, pFileName, get_pylon_section, pylBegin, pylEnd);
+  // create_faces(pFileName, pnx, pnt);
   // CSG these two meshes together 
   return 0;
 }

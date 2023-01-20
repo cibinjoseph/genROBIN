@@ -1,13 +1,14 @@
 import numpy as np
 
-nxFuselage = 24
-ntFuselage = 16
-nxPylon = 12
-ntPylon = 12
+nxFuselage = 12
+ntFuselage = 8
+nxPylon = 6
+ntPylon = 6
 
 fusFile = "robinFuselage.obj"
 pylFile = "robinPylon.obj"
 
+eps = np.spacing(1.0)
 
 def getSectionIndex(x, isPylon = False):
     """ Returns an index corresponding to each section
@@ -34,7 +35,20 @@ def getChebyshevNode(a, b, k, n):
     else:
         return b
 
-def createVertices(nx, nt, filename, isPylon = False):
+def getsuperval(x, c):
+    val = c[5] + c[6]*pow(max(0.0, c[0] + \
+                 c[1]*pow((x+c[2])/c[3], c[4])), 1.0/c[7])
+    return val
+
+def getRadialCoordinate(H, W, theta, N):
+    numer = 0.25*H*W
+    denom = pow(0.5*H*np.abs(np.sin(theta)), N) + \
+            pow(0.5*W*np.abs(np.cos(theta)), N)
+    if (abs(denom) < eps):
+        denom = 1
+    return numer / pow(denom, 1.0/N)
+
+def getVertices(nx, nt, isPylon = False):
     """ Creates vertices for fuselage or pylon geometry """
 
     # Rows 0, 1, 2 and 3 of the coefficient matrix are for the fuselage
@@ -82,18 +96,50 @@ def createVertices(nx, nt, filename, isPylon = False):
         xBegin = 0.0
         xEnd = 2.0
 
+    xol = np.empty(shape=[nx+1, nt])
+    yol = np.empty(shape=[nx+1, nt])
+    zol = np.empty(shape=[nx+1, nt])
+
+    for ix in range(nx+1):
+        xval = getChebyshevNode(xBegin, xEnd, ix, nx)
+        xol[ix, :] = xval
+        sec = getSectionIndex(xval)
+
+        if sec == -1:
+            raise ValueError("Incorrect Chebyshev node value")
+
+        H  = getsuperval(xval, hcoeff[sec, :])
+        W  = getsuperval(xval, wcoeff[sec, :])
+        Z0 = getsuperval(xval, zcoeff[sec, :])
+        N  = getsuperval(xval, ncoeff[sec, :])
+
+        for it in range(nt):
+            theta = 2.0*np.pi*it/float(nt)
+
+            r = getRadialCoordinate(H, W, theta, N)
+            yol[ix, it] = r * np.sin(theta)
+            zol[ix, it] = r * np.cos(theta) + Z0
+
+            if (ix == 0) or (ix == nx):
+                # Avoid multiple coincident points at
+                # tip and tail
+                break
+    return xol, yol, zol
+
+def writeVertices(xol, yol, zol, filename):
+    nx, nt = xol.shape
     with open(filename, "w") as fh:
         fh.write("# Vertices\n")
-
-        for ix in range(nx+1):
-            xol = getChebyshevNode(xBegin, xEnd, ix, nx)
-            sec = getSectionIndex(xol)
-
-            if sec == -1:
-                raise ValueError("Incorrect Chebyshev node value")
-
-    return
-
+        for ix in range(nx):
+            for it in range(nt):
+                fh.write("v " + \
+                         str(xol[ix, it]) + " " + \
+                         str(yol[ix, it]) + " " + \
+                         str(zol[ix, it]) + "\n")
+                if (ix == 0) or (ix == nx-1):
+                    # Avoid multiple coincident points at
+                    # tip and tail
+                    break
 
 if __name__ == "__main__":
 
@@ -105,12 +151,13 @@ if __name__ == "__main__":
 
     # Create fuselage
     print("Generating fuselage")
-    createVertices(nxFuselage, ntFuselage, fusFile)
-    # -- DEBUG --
+    x, y, z = getVertices(nxFuselage, ntFuselage)
+    writeVertices(x, y, z, fusFile)
+    # DEBUG
     exit()
     createFaces(fusFile, nxFuselage, ntFuselage)
 
     # Create pylon
     print("Generating pylon")
-    createVertices(nxFuselage, ntFuselage, fusFile, isPylon = True)
+    x, y, z = createVertices(nxFuselage, ntFuselage, isPylon = True)
     createFaces(fusFile, nxFuselage, ntFuselage, isPylon = True)
