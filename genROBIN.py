@@ -125,6 +125,43 @@ def getVertices(nx, nt, isPylon = False):
 
     return xol, yol, zol
 
+def getFaceInfo(x, y, z):
+    """ Creates face information for triangle surface elements """
+    nx1, nt = x.shape
+    nx = nx1 - 1
+
+    sz = 2*nt*(nx-1)
+    faceNodes = np.empty(shape=[sz, 3]).astype(int)
+
+    idx = 0
+    for i in range(2, nt+1):
+        faceNodes[idx, :] = [1, i, i+1]
+        idx += 1
+    faceNodes[idx, :] = [1, nt+1, 2]
+    idx += 1
+
+    for r in range(nx-2):
+        ir1 = nt*r + 2
+        ir2 = nt*(r+1) + 2
+        for n in range(nt-1):
+            faceNodes[idx, :] = [ir1+n, ir2+n, ir1+n+1]
+            idx += 1
+            faceNodes[idx, :] = [ir2+n, ir2+n+1, ir1+n+1]
+            idx += 1
+        faceNodes[idx, :] = [ir1+nt-1, ir2+nt-1, ir1]
+        idx += 1
+        faceNodes[idx, :] = [ir2+nt-1, ir2, ir1]
+        idx += 1
+
+    lastVert = nt*(nx-1)+2
+    for i in range(2, nt+1):
+        faceNodes[idx, :] = [(i+1)+nt*(nx-2) ,i+nt*(nx-2), lastVert]
+        idx += 1
+
+    faceNodes[idx, :] = [2+nt*(nx-2), lastVert-1, lastVert]
+
+    return faceNodes
+
 def writeVertices(xol, yol, zol, filename, writeFaces=True):
     """ Writes vertices and faces to file """
     nx1, nt = xol.shape
@@ -142,24 +179,9 @@ def writeVertices(xol, yol, zol, filename, writeFaces=True):
 
         if writeFaces:
             fh.write("\n# Faces\n")
-            for i in range(2, nt+1):
-                fh.write(f"f 1 {i} {i+1}\n")
-            fh.write(f"f 1 {nt+1} 2\n")
-
-            for r in range(nx-2):
-                ir1 = nt*r + 2
-                ir2 = nt*(r+1) + 2
-                for n in range(nt-1):
-                    fh.write(f"f {ir1+n} {ir2+n} {ir1+n+1}\n")
-                    fh.write(f"f {ir2+n} {ir2+n+1} {ir1+n+1}\n")
-                fh.write(f"f {ir1+nt-1} {ir2+nt-1} {ir1}\n")
-                fh.write(f"f {ir2+nt-1} {ir2} {ir1}\n")
-
-            lastVert = nt*(nx-1)+2
-            for i in range(2, nt+1):
-                fh.write(f"f {(i+1)+nt*(nx-2)} {i+nt*(nx-2)} {lastVert}\n")
-
-            fh.write(f"f {2+nt*(nx-2)} {lastVert-1} {lastVert}\n")
+            face = getFaceInfo(x, y, z)
+            for i in range(face.shape[0]):
+                fh.write(f"f {face[i, 0]} {face[i, 1]} {face[i, 2]}\n")
 
 
 if __name__ == "__main__":
