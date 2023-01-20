@@ -1,9 +1,9 @@
 import numpy as np
 
-nxFuselage = 120
-ntFuselage = 80
-nxPylon = 60
-ntPylon = 60
+nxFuselage = 12
+ntFuselage = 8
+nxPylon = 6
+ntPylon = 6
 
 fusFile = "robinFuselage.obj"
 pylFile = "robinPylon.obj"
@@ -50,9 +50,8 @@ def getRadialCoordinate(H, W, theta, N):
     numer = 0.25*H*W
     denom = np.power(0.5*H*np.abs(np.sin(theta)), N) + \
             np.power(0.5*W*np.abs(np.cos(theta)), N)
-    for i in range(denom.size):
-        if (abs(denom[i]) < eps):
-            denom[i] = 1
+    # Set zero elements in denominator to 1
+    denom[np.abs(denom) < eps] = 1.0
     return numer / np.power(denom, 1.0/N)
 
 def getVertices(nx, nt, isPylon = False):
