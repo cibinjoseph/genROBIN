@@ -50,8 +50,7 @@ def getRadialCoordinate(H, W, theta, N):
     return numer / np.power(denom, 1.0/N)
 
 def getVertices(nx, nt, isPylon = False):
-    """ Creates vertices for fuselage or pylon geometry """
-
+    """ Returns vertices for fuselage or pylon geometry """
     # Rows 0, 1, 2 and 3 of the coefficient matrix are for the fuselage
     # Rows 4 and 5 are for the pylon
     hcoeff = np.array([[1.0, -1.0, -0.4, -0.4,   1.8, 0.0,  0.25,  1.8],
@@ -118,7 +117,7 @@ def getVertices(nx, nt, isPylon = False):
     return xol, yol, zol
 
 def getFaceInfo(x, y, z, startFrom=1):
-    """ Creates face information for triangle surface elements
+    """ Returns face information for triangle surface elements
         startFrom tells whether vertices should be numbered from 0 or 1 """
     nx1, nt = x.shape
     nx = nx1 - 1
@@ -158,7 +157,7 @@ def getFaceInfo(x, y, z, startFrom=1):
 
     return faceNodes
 
-def writeVertices(xol, yol, zol, filename, writeFaces=True):
+def writeOBJ(xol, yol, zol, filename, writeFaces=True):
     """ Writes vertices and faces to ASCII obj file
         Use this only if meshio does not work """
     nx1, nt = xol.shape
@@ -242,20 +241,19 @@ if __name__ == "__main__":
         # Use own implementation as it is faster
         # This is retained in case meshIO fails
         print("Writing fuselage to " + fusFile)
-        writeVertices(xFus, yFus, zFus, fusFile)
+        writeOBJ(xFus, yFus, zFus, fusFile)
 
         print("Writing pylon to " + pylFile)
-        writeVertices(xPyl, yPyl, zPyl, pylFile)
+        writeOBJ(xPyl, yPyl, zPyl, pylFile)
+
     else:
         # Use meshio for writing to file
         print("Writing fuselage to " + fusFile)
         pointsFus = verticesToList(xFus, yFus, zFus)
-        # MeshIO requires face information with vertices indexed from 0 onwards
         cellsFus = [("triangle", getFaceInfo(xFus, yFus, zFus, startFrom=0))]
         mio.write_points_cells(fusFile, pointsFus, cellsFus)
 
         pointsPyl = verticesToList(xPyl, yPyl, zPyl)
-        # MeshIO requires face information with vertices indexed from 0 onwards
         cellsPyl = [("triangle", getFaceInfo(xPyl, yPyl, zPyl, startFrom=0))]
         print("Writing pylon to " + pylFile)
         mio.write_points_cells(pylFile, pointsPyl, cellsPyl)
