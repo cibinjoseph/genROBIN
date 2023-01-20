@@ -159,7 +159,8 @@ def getFaceInfo(x, y, z, startFrom=1):
     return faceNodes
 
 def writeVertices(xol, yol, zol, filename, writeFaces=True):
-    """ Writes vertices and faces to file """
+    """ Writes vertices and faces to ASCII obj file
+        Use this only if meshio does not work """
     nx1, nt = xol.shape
     nx = nx1 - 1
 
@@ -175,7 +176,7 @@ def writeVertices(xol, yol, zol, filename, writeFaces=True):
 
         if writeFaces:
             fh.write("\n# Faces\n")
-            face = getFaceInfo(x, y, z)
+            face = getFaceInfo(xol, yol, zol)
             for i in range(face.shape[0]):
                 fh.write(f"f {face[i, 0]} {face[i, 1]} {face[i, 2]}\n")
 
@@ -206,7 +207,7 @@ def getArguments():
     parser.add_argument("ntPylon", type=int, \
                         help="No. of circumferential elements for pylons")
     parser.add_argument("-f", default='obj', \
-                        choices=['obj', 'vtk'], \
+                        choices=['dat', 'obj', 'ply', 'stl', 'vtu', 'vtk'], \
                         help="Geometry file type")
 
     return parser.parse_args()
@@ -216,11 +217,10 @@ if __name__ == "__main__":
     # Parse arguments
     args = getArguments()
 
-    nscale = 1
-    nxFuselage = nscale*args.nxFuselage
-    ntFuselage = nscale*args.ntFuselage
-    nxPylon = nscale*args.nxPylon
-    ntPylon = nscale*args.ntPylon
+    nxFuselage = args.nxFuselage
+    ntFuselage = args.ntFuselage
+    nxPylon = args.nxPylon
+    ntPylon = args.ntPylon
     fileType = args.f
 
     fusFile = "robinFuselage." + fileType
@@ -234,18 +234,28 @@ if __name__ == "__main__":
 
     # Create fuselage
     xFus, yFus, zFus = getVertices(nxFuselage, ntFuselage)
-    pointsFus = verticesToList(xFus, yFus, zFus)
-    # MeshIO requires face information with vertices indexed from 0 onwards
-    cellsFus = [("triangle", getFaceInfo(xFus, yFus, zFus, startFrom=0))]
 
     # Create pylon
     xPyl, yPyl, zPyl = getVertices(nxPylon, ntPylon, isPylon = True)
-    pointsPyl = verticesToList(xPyl, yPyl, zPyl)
-    # MeshIO requires face information with vertices indexed from 0 onwards
-    cellsPyl = [("triangle", getFaceInfo(xPyl, yPyl, zPyl, startFrom=0))]
 
-    # Use meshio for writing to file
-    print("Writing fuselage to " + fusFile)
-    mio.write_points_cells(fusFile, pointsFus, cellsFus)
-    print("Writing pylon to " + pylFile)
-    mio.write_points_cells(pylFile, pointsPyl, cellsPyl)
+    if fileType == "obj":
+        # Use own implementation as it is faster
+        # This is retained in case meshIO fails
+        print("Writing fuselage to " + fusFile)
+        writeVertices(xFus, yFus, zFus, fusFile)
+
+        print("Writing pylon to " + pylFile)
+        writeVertices(xPyl, yPyl, zPyl, pylFile)
+    else:
+        # Use meshio for writing to file
+        print("Writing fuselage to " + fusFile)
+        pointsFus = verticesToList(xFus, yFus, zFus)
+        # MeshIO requires face information with vertices indexed from 0 onwards
+        cellsFus = [("triangle", getFaceInfo(xFus, yFus, zFus, startFrom=0))]
+        mio.write_points_cells(fusFile, pointsFus, cellsFus)
+
+        pointsPyl = verticesToList(xPyl, yPyl, zPyl)
+        # MeshIO requires face information with vertices indexed from 0 onwards
+        cellsPyl = [("triangle", getFaceInfo(xPyl, yPyl, zPyl, startFrom=0))]
+        print("Writing pylon to " + pylFile)
+        mio.write_points_cells(pylFile, pointsPyl, cellsPyl)
