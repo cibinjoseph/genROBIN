@@ -2,6 +2,7 @@
 
 import numpy as np
 import argparse as ag
+import meshio as mio
 
 # Machine epsilon
 eps = np.spacing(1.0)
@@ -174,6 +175,21 @@ def writeVertices(xol, yol, zol, filename, writeFaces=True):
             for i in range(face.shape[0]):
                 fh.write(f"f {face[i, 0]} {face[i, 1]} {face[i, 2]}\n")
 
+def verticesToList(x, y, z):
+    """ Converts indivdual coordinates to list of points form """
+    nx1, nt = x.shape
+    verticesList = np.empty(shape=(nx1*nt-2*(nt-1), 3))
+    idx = 0
+    for ix in range(nx1):
+        for it in range(nt):
+            verticesList[idx, :] = [x[ix, it], y[ix, it], z[ix, it]]
+            idx += 1
+            if (ix == 0) or (ix == nx1-1):
+                # Avoid multiple coincident points at
+                # tip and tail
+                break
+    return verticesList
+
 def getArguments():
     # Create parser for arguments
     parser = ag.ArgumentParser()
@@ -185,6 +201,9 @@ def getArguments():
                         help="No. of lengthwise elements for pylons")
     parser.add_argument("ntPylon", type=int, \
                         help="No. of circumferential elements for pylons")
+    parser.add_argument("-f", default='obj', \
+                        choices=['obj', 'vtk'], \
+                        help="Geometry file type")
 
     return parser.parse_args()
 
@@ -198,8 +217,7 @@ if __name__ == "__main__":
     ntFuselage = nscale*args.ntFuselage
     nxPylon = nscale*args.nxPylon
     ntPylon = nscale*args.ntPylon
-
-    fileType = "obj"
+    fileType = args.f
 
     fusFile = "robinFuselage." + fileType
     pylFile = "robinPylon." + fileType
@@ -211,11 +229,20 @@ if __name__ == "__main__":
         raise ValueError("Invalid number of elements")
 
     # Create fuselage
-    x, y, z = getVertices(nxFuselage, ntFuselage)
-    print("Writing fuselage to " + fusFile)
-    writeVertices(x, y, z, fusFile, writeFaces=True)
+    xFus, yFus, zFus = getVertices(nxFuselage, ntFuselage)
 
     # Create pylon
-    x, y, z = getVertices(nxPylon, ntPylon, isPylon = True)
+    xPyl, yPyl, zPyl = getVertices(nxPylon, ntPylon, isPylon = True)
+
+    # Use meshio for writing to file
+    # MeshIO requires face information indices numbered from 0 onwards
+    # getFaceInfo indexes it from 1 onwards
+    points = verticesToList(xFus, yFus, zFus)
+    cells = [("triangle", getFaceInfo(xFus, yFus, zFus)-1)]
+    print("Writing fuselage to " + fusFile)
+    mio.write_points_cells(fusFile, points, cells)
+
+    points = verticesToList(xPyl, yPyl, zPyl)
+    cells = [("triangle", getFaceInfo(xPyl, yPyl, zPyl)-1)]
     print("Writing pylon to " + pylFile)
-    writeVertices(x, y, z, pylFile, writeFaces=True)
+    mio.write_points_cells(pylFile, points, cells)
