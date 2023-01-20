@@ -1,9 +1,10 @@
 import numpy as np
 
-nxFuselage = 12
-ntFuselage = 8
-nxPylon = 6
-ntPylon = 6
+nscale = 1
+nxFuselage = 12*nscale
+ntFuselage = 8*nscale
+nxPylon = 6*nscale
+ntPylon = 6*nscale
 
 fusFile = "robinFuselage.obj"
 pylFile = "robinPylon.obj"
@@ -124,10 +125,6 @@ def getVertices(nx, nt, isPylon = False):
 
     return xol, yol, zol
 
-def getFStr(f1, f2, f3):
-    return "f " + str(f1) + " " + \
-            str(f2) + " " + str(f3) + "\n"
-
 def writeVertices(xol, yol, zol, filename, writeFaces=True):
     """ Writes vertices and faces to file """
     nx1, nt = xol.shape
@@ -136,39 +133,32 @@ def writeVertices(xol, yol, zol, filename, writeFaces=True):
         fh.write("# Vertices\n")
         for ix in range(nx+1):
             for it in range(nt):
-                fh.write("v " + \
-                         str(xol[ix, it]) + " " + \
-                         str(yol[ix, it]) + " " + \
-                         str(zol[ix, it]) + "\n")
+                fh.write(f"v {xol[ix, it]} {yol[ix, it]} {zol[ix, it]}\n")
                 if (ix == 0) or (ix == nx):
                     # Avoid multiple coincident points at
                     # tip and tail
                     break
 
         if writeFaces:
-            fh.write("\n")
-            fh.write("# Faces\n")
+            fh.write("\n# Faces\n")
             for i in range(2, nt+1):
-                fh.write("f 1 " + \
-                         str(i) + " " + \
-                         str(i+1) + "\n")
-            fh.write("f 1 " + str(nt+1) + " 2\n")
+                fh.write(f"f 1 {i} {i+1}\n")
+            fh.write(f"f 1 {nt+1} 2\n")
 
             for r in range(nx-2):
                 ir1 = nt*r + 2
                 ir2 = nt*(r+1) + 2
                 for n in range(nt-1):
-                    fh.write(getFStr(ir1+n, ir2+n, ir1+n+1))
-                    fh.write(getFStr(ir2+n, ir2+n+1, ir1+n+1))
-                fh.write(getFStr(ir1+nt-1, ir2+nt-1, ir1))
-                fh.write(getFStr(ir2+nt-1, ir2, ir1))
+                    fh.write(f"f {ir1+n} {ir2+n} {ir1+n+1}\n")
+                    fh.write(f"f {ir2+n} {ir2+n+1} {ir1+n+1}\n")
+                fh.write(f"f {ir1+nt-1} {ir2+nt-1} {ir1}\n")
+                fh.write(f"f {ir2+nt-1} {ir2} {ir1}\n")
 
             lastVert = nt*(nx-1)+2
             for i in range(2, nt+1):
-                fh.write(getFStr((i+1)+nt*(nx-2), \
-                                 i+nt*(nx-2), lastVert))
+                fh.write(f"f {(i+1)+nt*(nx-2)} {i+nt*(nx-2)} {lastVert}\n")
 
-            fh.write(getFStr(2+nt*(nx-2), lastVert-1, lastVert))
+            fh.write(f"f {2+nt*(nx-2)} {lastVert-1} {lastVert}\n")
 
 
 if __name__ == "__main__":
