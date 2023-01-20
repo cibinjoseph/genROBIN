@@ -1,7 +1,7 @@
 # genROBIN.py
 A python program to create the generic helicopter mesh named ROBIN.
 
-![screenshot](docs/robin.png?raw=true "ROBIN Body")
+![screenshot](docs/robin.gif?raw=true "ROBIN Body")
 
 ### Usage
 The program takes 4 integers as input. These represent the number of sections in the lengthwise and circumferential directions for the fuselage and pylon surface geometry.
