@@ -11,8 +11,8 @@ The required output mesh filetype can also be specified with the `-f` flag.
 ```
 ./genRobin.py -f vtk 48 32 24 24
 ```
-The command writes two triangle mesh files `robinFuselage` and `robinPylon` which contain the fuselage and the pylon geometry.
-If the `-f` flag is skipped, the `.obj` file format is used by default.
+The command writes out two triangle mesh files `robinFuselage` and `robinPylon` which contain the fuselage and the pylon geometry.
+If the `-f` flag is skipped, the `.obj` file format is used by default. Other mesh formats are handled using the [meshio](https://github.com/nschloe/meshio) module.
 
 **Detailed usage information**:
 ```
