@@ -8,32 +8,42 @@ ntPylon = 6
 fusFile = "robinFuselage.obj"
 pylFile = "robinPylon.obj"
 
+# Machine epsilon
 eps = np.spacing(1.0)
 
 def getSectionIndex(x, isPylon = False):
     """ Returns an index corresponding to each section
         for obtaining values from coeff matrix """
-    idx = -1
-    if isPylon:
-        idx = 4 if x < 0.8 else 5
-    else:
-        if x < 0.4:
-            idx = 0
-        elif x < 0.8:
-            idx = 1
-        elif x < 1.9:
-            idx = 2
+    idx = np.empty(x.size).astype(int)
+    for i in range(x.size):
+        if isPylon:
+            idx[i] = 4 if x[i] < 0.8 else 5
         else:
-            idx = 3
+            if x[i] < 0.4:
+                idx[i] = 0
+            elif x[i] < 0.8:
+                idx[i] = 1
+            elif x[i] < 1.9:
+                idx[i] = 2
+            else:
+                idx[i] = 3
     return idx
 
-def getChebyshevNode(a, b, k, n):
-    if k > 0 and k < n:
-        return 0.5*(a+b) + 0.5*(b-a)*np.cos((2.0*(n-k))*np.pi*0.5/n)
-    elif k == 0:
-        return a
-    else:
-        return b
+# def getChebyshevNode(a, b, k, n):
+#     if k > 0 and k < n:
+#         return 0.5*(a+b) + 0.5*(b-a)*np.cos((2.0*(n-k))*np.pi*0.5/n)
+#     elif k == 0:
+#         return a
+#     else:
+#         return b
+
+def getChebyshevNodes(a, b, n):
+    """ Get n+1 Chebyshev nodes from a to b """
+    k = np.arange(n+1)
+    nodes = 0.5*(a+b) + 0.5*(b-a)*np.cos((2.0*(n-k))*np.pi*0.5/n)
+    nodes[0] = a
+    nodes[n] = b
+    return nodes
 
 def getsuperval(x, c):
     val = c[5] + c[6]*pow(max(0.0, c[0] + \
@@ -41,12 +51,14 @@ def getsuperval(x, c):
     return val
 
 def getRadialCoordinate(H, W, theta, N):
+    """ Returns radial coordinate for the np.array theta """
     numer = 0.25*H*W
-    denom = pow(0.5*H*np.abs(np.sin(theta)), N) + \
-            pow(0.5*W*np.abs(np.cos(theta)), N)
-    if (abs(denom) < eps):
-        denom = 1
-    return numer / pow(denom, 1.0/N)
+    denom = np.power(0.5*H*np.abs(np.sin(theta)), N) + \
+            np.power(0.5*W*np.abs(np.cos(theta)), N)
+    for i in range(denom.size):
+        if (abs(denom[i]) < eps):
+            denom[i] = 1
+    return numer / np.power(denom, 1.0/N)
 
 def getVertices(nx, nt, isPylon = False):
     """ Creates vertices for fuselage or pylon geometry """
@@ -100,30 +112,21 @@ def getVertices(nx, nt, isPylon = False):
     yol = np.empty(shape=[nx+1, nt])
     zol = np.empty(shape=[nx+1, nt])
 
+    xval = getChebyshevNodes(xBegin, xEnd, nx)
+    xol = np.tile(xval, (nt, 1)).T
+
+    secIdx = getSectionIndex(xval, isPylon)
     for ix in range(nx+1):
-        xval = getChebyshevNode(xBegin, xEnd, ix, nx)
-        xol[ix, :] = xval
-        sec = getSectionIndex(xval, isPylon)
+        H  = getsuperval(xval[ix], hcoeff[secIdx[ix], :])
+        W  = getsuperval(xval[ix], wcoeff[secIdx[ix], :])
+        Z0 = getsuperval(xval[ix], zcoeff[secIdx[ix], :])
+        N  = getsuperval(xval[ix], ncoeff[secIdx[ix], :])
 
-        if sec == -1:
-            raise ValueError("Incorrect Chebyshev node value")
+        theta = 2.0*np.pi*np.arange(nt)/float(nt)
+        r = getRadialCoordinate(H, W, theta, N)
+        yol[ix, :] = np.multiply(r, np.sin(theta))
+        zol[ix, :] = np.multiply(r, np.cos(theta)) + Z0
 
-        H  = getsuperval(xval, hcoeff[sec, :])
-        W  = getsuperval(xval, wcoeff[sec, :])
-        Z0 = getsuperval(xval, zcoeff[sec, :])
-        N  = getsuperval(xval, ncoeff[sec, :])
-
-        for it in range(nt):
-            theta = 2.0*np.pi*it/float(nt)
-
-            r = getRadialCoordinate(H, W, theta, N)
-            yol[ix, it] = r * np.sin(theta)
-            zol[ix, it] = r * np.cos(theta) + Z0
-
-            if (ix == 0) or (ix == nx):
-                # Avoid multiple coincident points at
-                # tip and tail
-                break
     return xol, yol, zol
 
 def getFStr(f1, f2, f3):
