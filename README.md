@@ -8,14 +8,14 @@ The program takes 4 integers as input. These represent the number of sections in
 The required output mesh filetype can also be specified with the `-f` flag.
 
 **Quick example**:
-```bash
+```
 ./genRobin.py -f vtk 48 32 24 24
 ```
 The command writes two triangle mesh files `robinFuselage` and `robinPylon` which contain the fuselage and the pylon geometry.
 If the `-f` flag is skipped, the `.obj` file format is used by default.
 
 **Detailed usage information**:
-```bash
+```
 genROBIN.py [-h] [-f {dat,obj,ply,stl,vtu,vtk}]
                nxFuselage ntFuselage nxPylon ntPylon
 
