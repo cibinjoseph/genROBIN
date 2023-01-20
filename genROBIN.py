@@ -129,6 +129,7 @@ def writeVertices(xol, yol, zol, filename, writeFaces=True):
     """ Writes vertices and faces to file """
     nx1, nt = xol.shape
     nx = nx1 - 1
+
     with open(filename, "w") as fh:
         fh.write("# Vertices\n")
         for ix in range(nx+1):
