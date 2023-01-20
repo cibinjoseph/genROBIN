@@ -1,5 +1,5 @@
 # genROBIN.py
-A python program to generate the generic helicopter mesh named ROBIN.
+A python program to create the generic helicopter mesh named ROBIN.
 
 ![screenshot](docs/robin.png?raw=true "ROBIN Body")
 
