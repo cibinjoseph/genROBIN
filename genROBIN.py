@@ -29,14 +29,6 @@ def getSectionIndex(x, isPylon = False):
                 idx[i] = 3
     return idx
 
-# def getChebyshevNode(a, b, k, n):
-#     if k > 0 and k < n:
-#         return 0.5*(a+b) + 0.5*(b-a)*np.cos((2.0*(n-k))*np.pi*0.5/n)
-#     elif k == 0:
-#         return a
-#     else:
-#         return b
-
 def getChebyshevNodes(a, b, n):
     """ Get n+1 Chebyshev nodes from a to b """
     k = np.arange(n+1)
@@ -46,8 +38,11 @@ def getChebyshevNodes(a, b, n):
     return nodes
 
 def getsuperval(x, c):
-    val = c[5] + c[6]*pow(max(0.0, c[0] + \
-                 c[1]*pow((x+c[2])/c[3], c[4])), 1.0/c[7])
+    cval = (x+c[2])/c[3]
+    # np.power(x) does not like negative terms
+    # Computing using workaround np.sign(x)*np.abs(x)**y
+    negPowerTerm = c[0] +c[1]*np.sign(cval)*np.abs(cval)**c[4]
+    val = c[5] + c[6]*np.power(np.maximum(0.0, negPowerTerm), 1.0/c[7])
     return val
 
 def getRadialCoordinate(H, W, theta, N):
@@ -116,16 +111,17 @@ def getVertices(nx, nt, isPylon = False):
     xol = np.tile(xval, (nt, 1)).T
 
     secIdx = getSectionIndex(xval, isPylon)
-    for ix in range(nx+1):
-        H  = getsuperval(xval[ix], hcoeff[secIdx[ix], :])
-        W  = getsuperval(xval[ix], wcoeff[secIdx[ix], :])
-        Z0 = getsuperval(xval[ix], zcoeff[secIdx[ix], :])
-        N  = getsuperval(xval[ix], ncoeff[secIdx[ix], :])
+    theta = 2.0*np.pi*np.arange(nt)/float(nt)
 
-        theta = 2.0*np.pi*np.arange(nt)/float(nt)
-        r = getRadialCoordinate(H, W, theta, N)
+    for ix in range(nx+1):
+        H  = getsuperval(xval, hcoeff[secIdx[ix], :])
+        W  = getsuperval(xval, wcoeff[secIdx[ix], :])
+        Z0 = getsuperval(xval, zcoeff[secIdx[ix], :])
+        N  = getsuperval(xval, ncoeff[secIdx[ix], :])
+
+        r = getRadialCoordinate(H[ix], W[ix], theta, N[ix])
         yol[ix, :] = np.multiply(r, np.sin(theta))
-        zol[ix, :] = np.multiply(r, np.cos(theta)) + Z0
+        zol[ix, :] = np.multiply(r, np.cos(theta)) + Z0[ix]
 
     return xol, yol, zol
 
