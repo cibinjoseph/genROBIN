@@ -117,8 +117,9 @@ def getVertices(nx, nt, isPylon = False):
 
     return xol, yol, zol
 
-def getFaceInfo(x, y, z):
-    """ Creates face information for triangle surface elements """
+def getFaceInfo(x, y, z, startFrom=1):
+    """ Creates face information for triangle surface elements
+        startFrom tells whether vertices should be numbered from 0 or 1 """
     nx1, nt = x.shape
     nx = nx1 - 1
 
@@ -151,6 +152,9 @@ def getFaceInfo(x, y, z):
         idx += 1
 
     faceNodes[idx, :] = [2+nt*(nx-2), lastVert-1, lastVert]
+
+    if startFrom == 0:
+        faceNodes = faceNodes-1
 
     return faceNodes
 
@@ -230,19 +234,18 @@ if __name__ == "__main__":
 
     # Create fuselage
     xFus, yFus, zFus = getVertices(nxFuselage, ntFuselage)
+    pointsFus = verticesToList(xFus, yFus, zFus)
+    # MeshIO requires face information with vertices indexed from 0 onwards
+    cellsFus = [("triangle", getFaceInfo(xFus, yFus, zFus, startFrom=0))]
 
     # Create pylon
     xPyl, yPyl, zPyl = getVertices(nxPylon, ntPylon, isPylon = True)
+    pointsPyl = verticesToList(xPyl, yPyl, zPyl)
+    # MeshIO requires face information with vertices indexed from 0 onwards
+    cellsPyl = [("triangle", getFaceInfo(xPyl, yPyl, zPyl, startFrom=0))]
 
     # Use meshio for writing to file
-    # MeshIO requires face information indices numbered from 0 onwards
-    # getFaceInfo indexes it from 1 onwards
-    points = verticesToList(xFus, yFus, zFus)
-    cells = [("triangle", getFaceInfo(xFus, yFus, zFus)-1)]
     print("Writing fuselage to " + fusFile)
-    mio.write_points_cells(fusFile, points, cells)
-
-    points = verticesToList(xPyl, yPyl, zPyl)
-    cells = [("triangle", getFaceInfo(xPyl, yPyl, zPyl)-1)]
+    mio.write_points_cells(fusFile, pointsFus, cellsFus)
     print("Writing pylon to " + pylFile)
-    mio.write_points_cells(pylFile, points, cells)
+    mio.write_points_cells(pylFile, pointsPyl, cellsPyl)

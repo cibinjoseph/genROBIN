@@ -12,4 +12,4 @@ clean:
 	rm -f *.o makerobin
 
 fileclean:
-	rm -f *.obj
+	rm -f *.obj *.vtk
