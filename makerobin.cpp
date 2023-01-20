@@ -224,8 +224,8 @@ int main(int argc, char const *argv[]) {
   create_vertices(fnx, fnt, fileName, get_fuselage_section, fusBegin, fusEnd);
   create_faces(fileName, fnx, fnt);
   // std::cout << "Creating pylon mesh..." << std::endl;
-  // create_vertices(pnx, pnt, pFileName, get_pylon_section, pylBegin, pylEnd);
-  // create_faces(pFileName, pnx, pnt);
+  create_vertices(pnx, pnt, pFileName, get_pylon_section, pylBegin, pylEnd);
+  create_faces(pFileName, pnx, pnt);
   // CSG these two meshes together 
   return 0;
 }
