@@ -1,9 +1,9 @@
 import numpy as np
 
-nxFuselage = 12
-ntFuselage = 8
-nxPylon = 6
-ntPylon = 6
+nxFuselage = 120
+ntFuselage = 80
+nxPylon = 60
+ntPylon = 60
 
 fusFile = "robinFuselage.obj"
 pylFile = "robinPylon.obj"
