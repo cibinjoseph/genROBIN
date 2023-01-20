@@ -1,10 +1,5 @@
 import numpy as np
-
-nscale = 1
-nxFuselage = 12*nscale
-ntFuselage = 8*nscale
-nxPylon = 6*nscale
-ntPylon = 6*nscale
+import argparse as ag
 
 fusFile = "robinFuselage.obj"
 pylFile = "robinPylon.obj"
@@ -183,8 +178,30 @@ def writeVertices(xol, yol, zol, filename, writeFaces=True):
             for i in range(face.shape[0]):
                 fh.write(f"f {face[i, 0]} {face[i, 1]} {face[i, 2]}\n")
 
+def getArguments():
+    # Create parser for arguments
+    parser = ag.ArgumentParser()
+    parser.add_argument("nxFuselage", type=int, \
+                        help="No. of lengthwise elements for fuselage")
+    parser.add_argument("ntFuselage", type=int, \
+                        help="No. of circumferential elements for fuselage")
+    parser.add_argument("nxPylon", type=int, \
+                        help="No. of lengthwise elements for pylons")
+    parser.add_argument("ntPylon", type=int, \
+                        help="No. of circumferential elements for pylons")
+
+    return parser.parse_args()
 
 if __name__ == "__main__":
+
+    # Parse arguments
+    args = getArguments()
+
+    nscale = 1
+    nxFuselage = nscale*args.nxFuselage
+    ntFuselage = nscale*args.ntFuselage
+    nxPylon = nscale*args.nxPylon
+    ntPylon = nscale*args.ntPylon
 
     # Check if inputs are valid
     if all((nxFuselage, ntFuselage, nxPylon, ntPylon)) > 0:
@@ -193,11 +210,11 @@ if __name__ == "__main__":
         raise ValueError("Incorrect number of elements")
 
     # Create fuselage
-    print("Generating fuselage")
     x, y, z = getVertices(nxFuselage, ntFuselage)
+    print("Writing fuselage to file")
     writeVertices(x, y, z, fusFile, writeFaces=True)
 
     # Create pylon
-    print("Generating pylon")
     x, y, z = getVertices(nxPylon, ntPylon, isPylon = True)
+    print("Writing pylon to file")
     writeVertices(x, y, z, pylFile, writeFaces=True)
