@@ -103,7 +103,7 @@ def getVertices(nx, nt, isPylon = False):
     for ix in range(nx+1):
         xval = getChebyshevNode(xBegin, xEnd, ix, nx)
         xol[ix, :] = xval
-        sec = getSectionIndex(xval)
+        sec = getSectionIndex(xval, isPylon)
 
         if sec == -1:
             raise ValueError("Incorrect Chebyshev node value")
@@ -185,11 +185,8 @@ if __name__ == "__main__":
     print("Generating fuselage")
     x, y, z = getVertices(nxFuselage, ntFuselage)
     writeVertices(x, y, z, fusFile, writeFaces=True)
-    # DEBUG
-    exit()
 
     # Create pylon
     print("Generating pylon")
-    x, y, z = getVertices(nxFuselage, ntFuselage, isPylon = True)
-    writeVertices(x, y, z, fusFile, writeFaces=True)
-    createFaces(fusFile, nxFuselage, ntFuselage, isPylon = True)
+    x, y, z = getVertices(nxPylon, ntPylon, isPylon = True)
+    writeVertices(x, y, z, pylFile, writeFaces=True)
