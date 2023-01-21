@@ -1,5 +1,5 @@
 # genROBIN.py
-A python program to create the generic helicopter mesh named ROBIN.
+A python program to create mesh geometry for the generic helicopter fuselage named ROBIN (ROtor Bdy INteraction).
 
 ![screenshot](docs/robin.gif?raw=true "ROBIN Body")
 
