@@ -3,18 +3,18 @@ A python program to create the generic helicopter mesh named ROBIN.
 
 ![screenshot](docs/robin.gif?raw=true "ROBIN Body")
 
-### Usage
+## Usage
 The program takes 4 integers as input. These represent the number of sections in the lengthwise and circumferential directions for the fuselage and pylon surface geometry.
 The required output mesh filetype can also be specified with the `-f` flag.
 
-**Quick example**:
+### Quick example
 ```
 ./genRobin.py -f vtk 48 32 24 24
 ```
 The command writes out two triangle mesh files `robinFuselage` and `robinPylon` which contain the fuselage and the pylon geometry.
 If the `-f` flag is skipped, the `.obj` file format is used by default. Other mesh formats are handled using the [meshio](https://github.com/nschloe/meshio) module.
 
-**Detailed usage information**:
+### Detailed usage
 ```
 genROBIN.py [-h] [-f {dat,obj,ply,stl,vtu,vtk}]
                nxFuselage ntFuselage nxPylon ntPylon
@@ -31,7 +31,8 @@ optional arguments:
                         Geometry file type
 ```
 
-The script may also be used by importing as a module as given below.
+### Script usage
+`genROBIN` may also be used by importing as a module as shown below.
 ```python
 import genROBIN as gr
 
@@ -44,8 +45,8 @@ x, y, z = gr.getVertices(nx=24, nt=24, isPylon=True)
 gr.writeOBJ(x, y, z, "robinPylon.obj")
 ```
 
-### Notes
+## Notes
 This script generates triangular surface elements. The mesh can be converted to quad elements easily using the `Recombine 2D` operation in [GMSH](https://gmsh.info/). GMSH can also be used to generate higher-order elements from the mesh output from this script. STL mesh files reported the least amount of failures when importing into GMSH.
 
-### Acknowledgements
+## Acknowledgements
 This script was created by referencing [robin-surface-mesh](https://github.com/Applied-Scientific-Research/robin-surface-mesh). The authors are duly acknowledged. They report that several corrections were necessary to coefficient data from the originally published reports (Refs. [1](https://ntrs.nasa.gov/search.jsp?R=19790017844), [2](https://ntrs.nasa.gov/search.jsp?R=19870008231)) to generate the right shape and avoid obtaining NaNs.
