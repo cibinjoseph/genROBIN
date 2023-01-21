@@ -33,10 +33,14 @@ optional arguments:
 
 The script may also be used by importing as a module as given below.
 ```python
-import genRobin as gr
-x, y, z = gr.getVertices(48, 32)
+import genROBIN as gr
+
+# Create and write out fuselage geometry
+x, y, z = gr.getVertices(nx=48, nt=32)
 gr.writeOBJ(x, y, z, "robinFuselage.obj")
-x, y, z = gr.getVertices(24, 24, isPylon=True)
+
+# Create and write out pylon geometry
+x, y, z = gr.getVertices(nx=24, nt=24, isPylon=True)
 gr.writeOBJ(x, y, z, "robinPylon.obj")
 ```
 

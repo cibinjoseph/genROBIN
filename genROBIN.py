@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import numpy as np
-import argparse as ag
 import meshio as mio
 
 # Machine epsilon
@@ -50,7 +49,10 @@ def getRadialCoordinate(H, W, theta, N):
     return numer / np.power(denom, 1.0/N)
 
 def getVertices(nx, nt, isPylon = False):
-    """ Returns vertices for fuselage or pylon geometry """
+    """ Returns vertices for fuselage or pylon geometry
+        nx is number of elements along length
+        nt is number of elements along circumference
+        isPylon determines whether fuselage or pylon is generated """
     # Rows 0, 1, 2 and 3 of the coefficient matrix are for the fuselage
     # Rows 4 and 5 are for the pylon
     hcoeff = np.array([[1.0, -1.0, -0.4, -0.4,   1.8, 0.0,  0.25,  1.8],
@@ -213,7 +215,9 @@ def getArguments():
 
 
 if __name__ == "__main__":
+
     # Parse arguments
+    import argparse as ag
     args = getArguments()
 
     nxFuselage = args.nxFuselage
