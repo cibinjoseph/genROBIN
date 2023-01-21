@@ -56,6 +56,7 @@ gr.writeOBJ(x, y, z, "robinPylon.obj")
 
 ## Notes
 This script generates triangular surface elements. The mesh can be converted to quad elements easily using the `Recombine 2D` operation in [GMSH](https://gmsh.info/). GMSH can also be used to generate higher-order elements from the mesh output from this script. STL mesh files reported the least amount of failures when importing into GMSH.
+
 ![ROBINToGMSH](docs/robinToGMSH.png?raw=true "ROBIN GMSH")
 
 ## Acknowledgements
