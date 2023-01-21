@@ -49,8 +49,8 @@ gr.writeOBJ(x, y, z, "robinPylon.obj")
 `genROBIN` can output mesh geometry in the following file types.
 1. [Tecplot](http://paulbourke.net/dataformats/tp/) .dat
 2. [OBJ](https://en.wikipedia.org/wiki/Wavefront_.obj_file) .obj
-3. [PLY](https://en.wikipedia.org/wiki/PLY_(file_format) .ply
-4. [STL](https://en.wikipedia.org/wiki/STL_(file_format) .stl
+3. [PLY](https://en.wikipedia.org/wiki/PLY_(file_format)) .ply
+4. [STL](https://en.wikipedia.org/wiki/STL_(file_format)) .stl
 5. [VTU](https://vtk.org/Wiki/VTK_XML_Formats) .vtu
 6. [VTK](https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf) .vtk
 
