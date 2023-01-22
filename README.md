@@ -55,8 +55,16 @@ gr.writeOBJ(x, y, z, "robinPylon.obj")
 6. [VTK](https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf) .vtk
 
 ## Notes
-This script generates triangular surface elements. The mesh can be converted to quad elements easily using the `Recombine 2D` operation in [GMSH](https://gmsh.info/). GMSH can also be used to generate higher-order elements from the mesh output from this script. STL mesh files reported the least amount of failures when importing into GMSH.
+This script generates triangular surface elements. The mesh can be converted to quad elements easily using the `Recombine 2D` operation in [GMSH](https://gmsh.info/). GMSH can also be used to generate higher-order elements from the mesh output from this script. STL mesh files reported the least amount of failures when importing into GMSH. The following example python script converts tri elements to quad using the gmsh python API.
+```python
+import gmsh
 
+gmsh.initialize()
+gmsh.open("robinFuselage.stl")
+gmsh.model.mesh.recombine()
+gmsh.write("robinFuselage.msh")
+gmsh.finalize()
+```
 ![ROBINToGMSH](docs/robinToGMSH.png?raw=true "ROBIN GMSH")
 
 ## Acknowledgements
