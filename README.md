@@ -61,7 +61,8 @@ import gmsh
 
 gmsh.initialize()
 gmsh.open("robinFuselage.stl")
-gmsh.model.mesh.recombine()
+gmsh.model.mesh.recombine()       # Convert tri to quad elements
+gmsh.model.mesh.setOrder(2)       # Convert to 2nd order elements
 gmsh.write("robinFuselage.msh")
 gmsh.finalize()
 ```
