@@ -45,6 +45,9 @@ x, y, z = gr.getVertices(nx=24, nt=24, isPylon=True)
 gr.writeOBJ(x, y, z, "robinPylon.obj")
 ```
 
+`x, y, z` are 2D arrays with the first index along the axis of the geometry, representing each lateral cross-section. The second index represents the coordinates on the geometry at that cross-sectional slice.
+
+
 ### Output formats
 `genROBIN` can output mesh geometry in the following file types.
 1. [Tecplot](http://paulbourke.net/dataformats/tp/) .dat
