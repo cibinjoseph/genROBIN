@@ -16,7 +16,7 @@ If the `-f` flag is skipped, the `.obj` file format is used by default. Other me
 
 ### Detailed usage
 ```
-genROBIN.py [-h] [-f {dat,obj,ply,stl,vtu,vtk}]
+genROBIN.py [-h] [-f {csv,dat,obj,ply,stl,vtu,vtk}]
                nxFuselage ntFuselage nxPylon ntPylon
 
 positional arguments:
@@ -27,7 +27,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -f {dat,obj,ply,stl,vtu,vtk}
+  -f {csv,dat,obj,ply,stl,vtu,vtk}
                         Geometry file type
 ```
 
@@ -50,12 +50,13 @@ gr.writeOBJ(x, y, z, "robinPylon.obj")
 
 ### Output formats
 `genROBIN` can output mesh geometry in the following file types.
-1. [Tecplot](http://paulbourke.net/dataformats/tp/) .dat
-2. [OBJ](https://en.wikipedia.org/wiki/Wavefront_.obj_file) .obj
-3. [PLY](https://en.wikipedia.org/wiki/PLY_(file_format)) .ply
-4. [STL](https://en.wikipedia.org/wiki/STL_(file_format)) .stl
-5. [VTU](https://vtk.org/Wiki/VTK_XML_Formats) .vtu
-6. [VTK](https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf) .vtk
+1. [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) .csv
+2. [Tecplot](http://paulbourke.net/dataformats/tp/) .dat
+3. [OBJ](https://en.wikipedia.org/wiki/Wavefront_.obj_file) .obj
+4. [PLY](https://en.wikipedia.org/wiki/PLY_(file_format)) .ply
+5. [STL](https://en.wikipedia.org/wiki/STL_(file_format)) .stl
+6. [VTU](https://vtk.org/Wiki/VTK_XML_Formats) .vtu
+7. [VTK](https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf) .vtk
 
 ## Notes
 This script generates triangular surface elements. The mesh can be converted to quad elements easily using the `Recombine 2D` operation in [GMSH](https://gmsh.info/). GMSH can also be used to generate higher-order elements from the mesh output from this script. STL mesh files reported the least amount of failures when importing into GMSH. The following example python script converts tri elements to quad using the gmsh python API.

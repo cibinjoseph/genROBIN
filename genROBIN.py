@@ -208,7 +208,7 @@ def getArguments():
     parser.add_argument("ntPylon", type=int, \
                         help="No. of circumferential elements for pylons")
     parser.add_argument("-f", default='obj', \
-                        choices=['dat', 'obj', 'ply', 'stl', 'vtu', 'vtk'], \
+                        choices=['csv', 'dat', 'obj', 'ply', 'stl', 'vtu', 'vtk'], \
                         help="Geometry file type")
 
     return parser.parse_args()
@@ -249,6 +249,16 @@ if __name__ == "__main__":
 
         print("Writing pylon to " + pylFile)
         writeOBJ(xPyl, yPyl, zPyl, pylFile)
+
+    elif fileType == "csv":
+        # Write separate csv files for x,y,z of fuselage and pylon
+        np.savetxt("x-"+fusFile, xFus, delimiter=",")
+        np.savetxt("y-"+fusFile, yFus, delimiter=",")
+        np.savetxt("z-"+fusFile, zFus, delimiter=",")
+
+        np.savetxt("x-"+pylFile, xPyl, delimiter=",")
+        np.savetxt("y-"+pylFile, yPyl, delimiter=",")
+        np.savetxt("z-"+pylFile, zPyl, delimiter=",")
 
     else:
         # Use meshio for writing to file
